@@ -1,65 +1,114 @@
-import Image from "next/image";
+'use client';
 
-export default function Home() {
+import React from 'react';
+import { ArrowRightLeft, Copy, Download, Share2, Sparkles } from 'lucide-react';
+import { LanguageSelector } from '@/components/LanguageSelector';
+import { TranslationCanvas } from '@/components/TranslationCanvas';
+import { useTranslation } from '@/hooks/useTranslation';
+
+const LANGUAGES = [
+  'Python', 'JavaScript', 'TypeScript', 'Go', 'Rust',
+  'Java', 'C++', 'C#', 'Ruby', 'PHP', 'Swift'
+];
+
+export default function PolyglotPage() {
+  const {
+    sourceCode,
+    setSourceCode,
+    targetCode,
+    sourceLang,
+    setSourceLang,
+    targetLang,
+    setTargetLang,
+    isLoading,
+    swapLanguages,
+    handleTranslate
+  } = useTranslation();
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <div className="flex h-screen flex-col bg-[#0e0e0e] text-white font-sans">
+      {/* Header */}
+      <header className="flex items-center justify-between border-b border-gray-800 px-6 py-4 bg-[#161616]">
+        <div className="flex items-center space-x-2">
+          <div className="bg-blue-600 p-1.5 rounded-lg">
+            <Sparkles className="w-5 h-5 text-white" />
+          </div>
+          <h1 className="text-xl font-semibold tracking-tight">Polyglot</h1>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+        <div className="flex items-center space-x-4">
+          {/* Placeholder for user profile or settings */}
         </div>
-      </main>
+      </header>
+
+      {/* Control Bar */}
+      <div className="flex items-center justify-between border-b border-gray-800 px-6 py-3 bg-[#161616]">
+        <div className="flex items-center space-x-4 flex-1">
+          <LanguageSelector
+            selected={sourceLang}
+            onChange={setSourceLang}
+            options={LANGUAGES}
+            label="Source"
+          />
+
+          <button
+            onClick={swapLanguages}
+            className="p-2 hover:bg-gray-700 rounded-full transition-colors text-gray-400 hover:text-white"
+            title="Swap Languages"
+          >
+            <ArrowRightLeft className="w-5 h-5" />
+          </button>
+
+          <LanguageSelector
+            selected={targetLang}
+            onChange={setTargetLang}
+            options={LANGUAGES}
+            label="Target"
+          />
+        </div>
+
+        <button
+          onClick={handleTranslate}
+          disabled={isLoading || !sourceCode.trim()}
+          className={`
+            flex items-center space-x-2 px-6 py-2.5 rounded-lg font-medium transition-all
+            ${isLoading || !sourceCode.trim()
+              ? 'bg-gray-800 text-gray-500 cursor-not-allowed'
+              : 'bg-blue-600 hover:bg-blue-500 text-white shadow-lg shadow-blue-900/20'}
+          `}
+        >
+          <span>{isLoading ? 'Translating...' : 'Translate'}</span>
+        </button>
+      </div>
+
+      {/* Main Canvas */}
+      <TranslationCanvas
+        sourceCode={sourceCode}
+        targetCode={targetCode}
+        sourceLang={sourceLang}
+        targetLang={targetLang}
+        onSourceChange={(val) => setSourceCode(val || '')}
+        isLoading={isLoading}
+      />
+
+      {/* Footer / Actions */}
+      <div className="border-t border-gray-800 bg-[#161616] px-6 py-3 flex justify-between items-center text-sm text-gray-400">
+        <div className="flex space-x-6">
+          <button className="flex items-center space-x-2 hover:text-white transition-colors">
+            <Copy className="w-4 h-4" />
+            <span>Copy</span>
+          </button>
+          <button className="flex items-center space-x-2 hover:text-white transition-colors">
+            <Share2 className="w-4 h-4" />
+            <span>Share</span>
+          </button>
+        </div>
+        <div className="flex space-x-6">
+          <button className="flex items-center space-x-2 hover:text-white transition-colors">
+            <Download className="w-4 h-4" />
+            <span>Download</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
